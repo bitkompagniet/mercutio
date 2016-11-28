@@ -1,0 +1,31 @@
+{
+  "name": "mercutio",
+  "version": "0.1.0",
+  "description": "A module for rights management using roles and scopes",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --harmony-async-await",
+    "lint": "eslint .",
+    "generate": "plop"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Kristian Videmark Parkov",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.2",
+    "rumor": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.9.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.5.0",
+    "mocha": "^3.2.0",
+    "plop": "^1.7.1"
+  }
+}
