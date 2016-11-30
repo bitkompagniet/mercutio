@@ -37,9 +37,14 @@ app.use(mercutio.middleware());
 
 app.use(function(req, res) {
 
-	req.identity.is('admin@my/scope'); // ask if resolved user is admin in my/scope
-	req.identity.in('my/scope'); // ask if user is in my/scope in any role
-	req.identity.demand('admin@my/scope'); // will call the fail handler if false
+	// ask if resolved user is admin in my/scope
+	req.identity.is('admin@my/scope');
+
+	// ask if user is in my/scope in any role
+	req.identity.in('my/scope');
+
+	// will call the fail handler if false
+	req.identity.demand('admin@my/scope');
 
 });
 ```
@@ -47,7 +52,9 @@ app.use(function(req, res) {
 Per default, mercutio will try to retrieve the roles from a JWT token set on the `Authorization` header of the request. This retrieval can be customized:
 
 ```javascript
-app.use(mercutio.middleware({ resolveRoles: req => /* Do something else to retrieve roles */ }));
+app.use(mercutio.middleware({ 
+	resolveRoles: req => /* Do something else to retrieve roles */ 
+}));
 ```
 
 Please note that mercutio does **not** verify the token. This should be done before trusting the token.
@@ -55,7 +62,9 @@ Please note that mercutio does **not** verify the token. This should be done bef
 The failure that arises from `demand`ing a role can also be configured:
 
 ```javascript
-app.use(mercutio.middleware({ onDemandFail: (req, res, next) => /* Do something else on failure */ }));
+app.use(mercutio.middleware({ 
+	onDemandFail: (req, res, next) => /* Do something else on failure */ 
+}));
 ```
 
 The default behaviour is to set status 401 and return an authorization failure message.
