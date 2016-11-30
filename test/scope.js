@@ -49,8 +49,8 @@ describe('Scope', function() {
 		(new Scope('my/other/scope')).childOf(new Scope('my/scope')).should.not.be.ok;
 	});
 
-	it('should not accept some/other as in some/other/scope', function() {
-		(new Scope('some/other').in(new Scope('some/other/scope'))).should.not.be.ok;
+	it('should accept some/other as in some/other/scope', function() {
+		(new Scope('some/other').in(new Scope('some/other/scope'))).should.be.ok;
 	});
 
 	it(`should not accept ${p} as child of ${c1}`, function() {
@@ -61,8 +61,8 @@ describe('Scope', function() {
 		c1.childOf(p).should.be.ok;
 	});
 
-	it(`.in is synonymous with childOf`, function() {
-		c1.childOf(p).should.be.ok;
+	it(`.in is synonymous with parentOf`, function() {
+		p.in(c1).should.be.ok;
 	});
 
 	it('the root scope should be parent of everything', function() {

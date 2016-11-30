@@ -21,7 +21,7 @@ describe('Roles', function() {
 			role.should.be.instanceof(Role);
 		});
 
-		roles.whereIn('my').all.should.have.length(2);
+		roles.whereIn('my/scope/below').all.should.have.length(1);
 		roles.whereIs('admin@my/scope').should.have.length(1);
 		roles.whereIn('my/scope').should.have.length(1);
 		roles.is('admin@my/scope').should.be.ok;
@@ -31,8 +31,10 @@ describe('Roles', function() {
 		const roles = new Roles(testRoles);
 		roles.all.should.be.an('array');
 		roles.all.should.have.length(3);
-		roles.whereIn('some').should.have.length(2);
-		roles.whereIn('some/other').should.have.length(1);
+		roles.whereIn('some/scope/below/this').should.have.length(1);
+		roles.whereIn('some/other/scope/down/here').should.have.length(1);
 		roles.whereIs('editor@some/other/scope/to/be/examined').should.have.length(1);
+		roles.whereIs('editor@some').should.have.length(0);
+		roles.in('some').should.not.be.ok;
 	});
 });
