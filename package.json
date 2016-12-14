@@ -2,7 +2,7 @@
   "name": "mercutio",
   "version": "0.2.2",
   "description": "A module for rights management using roles and scopes",
-  "main": "index.js",
+  "main": "export.js",
   "scripts": {
     "test": "mocha --harmony-async-await",
     "lint": "eslint .",
