@@ -10,6 +10,10 @@ describe('Role', function() {
 		should.not.throw(() => new Role('admin@my/scope'));
 	});
 
+	it(`Prefixing with slash makes no difference`, function() {
+		(new Role('admin@/some/scope').is(new Role('admin@some/scope'))).should.be.ok;
+	});
+
 	it(`admin@some/scope is not admin@some`, function() {
 		(new Role('admin@some/scope')).is(new Role('admin@some')).should.not.be.ok;
 	});
