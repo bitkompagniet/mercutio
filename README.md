@@ -1,5 +1,7 @@
 Mercutio is a small module to validate user roles by scopes. It assumes an array of roles that can be described as `[role]@[scope]`, where role is a non-hierarchical user type, and scopes are path-based domains of influence. Being `admin@my/scope` automatically implies that you are also `admin@my/scope/area`, but you have no status in `@my`.
 
+Roles are not hierarchical. Being `admin` will not return true for any other role, so `admin` does not imply `member`, for instance.
+
 ```javascript
 const mercutio = require('mercutio');
 
@@ -68,3 +70,16 @@ app.use(mercutio.middleware({
 ```
 
 The default behaviour is to set status 401 and return an authorization failure message.
+
+Once the `mercutio.middleware()` has been added to the middleware chain, you can also use the `.demand` middleware to check roles, if you know them outside the request context:
+
+```javascript
+const app = require('express')();
+const mercutio = require('mercutio');
+
+app.use(mercutio.middleware());
+
+app.get('/admins', mercutio.demand('admin@scope'), function(req, res) { /* your handler */ });
+```
+
+The `onDemandFail` will be called if this check fails.
