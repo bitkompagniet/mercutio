@@ -59,4 +59,14 @@ describe('Roles', function() {
 			'sites',
 		]);
 	});
+
+	it('should be able to decipher an *@/ in the midst', function() {
+		const roles = [
+			{ role: 'admin', scope: 'users/587e7a19d53d24af3cc5f014' },
+			{ role: '*', scope: '/' },
+			{ role: 'member', scope: 'users/587e7a19d53d24af3cc5f014' },
+		];
+
+		should.not.throw(() => new Roles(roles));
+	});
 });
