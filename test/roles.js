@@ -60,6 +60,29 @@ describe('Roles', function() {
 		]);
 	});
 
+	it('should remove duplicates upon rationalization', function() {
+		const definitions = [
+			'admin@some',
+			'admin@some/other/scope',
+			'admin@some/other/scope',
+			'admin@users',
+			'member@sites',
+			'member@sites/27',
+			'member@sites/27',
+		];
+
+		const roles = new Roles(definitions);
+		roles.should.have.length(7);
+
+		const rationalized = roles.rationalize();
+		rationalized.should.have.length(3);
+		rationalized.toArray().map(r => r.scope).should.eql([
+			'some',
+			'users',
+			'sites',
+		]);
+	});
+
 	it('should be able to decipher an *@/ in the midst', function() {
 		const roles = [
 			{ role: 'admin', scope: 'users/587e7a19d53d24af3cc5f014' },
