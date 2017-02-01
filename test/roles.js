@@ -62,25 +62,37 @@ describe('Roles', function() {
 
 	it('should remove duplicates upon rationalization', function() {
 		const definitions = [
-			'admin@some',
 			'admin@some/other/scope',
 			'admin@some/other/scope',
-			'admin@users',
 			'member@sites',
 			'member@sites/27',
 			'member@sites/27',
 		];
 
 		const roles = new Roles(definitions);
-		roles.should.have.length(7);
+		roles.should.have.length(5);
 
 		const rationalized = roles.rationalize();
-		rationalized.should.have.length(3);
+		rationalized.should.have.length(2);
 		rationalized.toArray().map(r => r.scope).should.eql([
-			'some',
-			'users',
+			'some/other/scope',
 			'sites',
 		]);
+	});
+
+	it('should not fail when rationalizing pairs of the same', function() {
+		const definitions = [
+			'admin@users/27',
+			'admin@users/27',
+			'member@users/27',
+			'member@users/27',
+		];
+
+		const roles = new Roles(definitions);
+		roles.should.have.length(4);
+		roles.toArray().should.have.length(4);
+		roles.rationalize().should.have.length(2);
+		roles.rationalize().toArray().should.have.length(2);
 	});
 
 	it('should be able to decipher an *@/ in the midst', function() {
