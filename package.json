@@ -17,7 +17,7 @@
   "dependencies": {
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.17.2",
-    "rumor": "^1.0.0"
+    "rumor": "^1.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
