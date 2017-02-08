@@ -104,4 +104,16 @@ describe('Roles', function() {
 
 		should.not.throw(() => new Roles(roles));
 	});
+
+	describe('.whereRoleIs', function() {
+		it('should include roles with a * role', function() {
+			const roles = [
+				{ role: 'admin', scope: 'users/587e7a19d53d24af3cc5f014' },
+				{ role: '*', scope: '/' },
+				{ role: 'member', scope: 'users/587e7a19d53d24af3cc5f014' },
+			];
+
+			(new Roles(roles)).whereRoleIs('member').should.have.length(2);
+		});
+	});
 });
