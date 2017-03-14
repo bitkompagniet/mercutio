@@ -1,7 +1,7 @@
 const chai = require('chai');
 const lib = require('../lib');
-const should = chai.should();
 
+const should = chai.should();
 const auth = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEiLCJlbWFpbCI6InRlc3RAbXVncy5pbmZvIiwiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiVGVzdHNlbiIsInJvbGVzIjpbeyJyb2xlIjoiYWRtaW4iLCJzY29wZSI6InVzZXJzL2FiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMSJ9LHsicm9sZSI6Im1lbWJlciIsInNjb3BlIjoidXNlcnMvYWJjZGVmMDEyMzQ1Njc4OWFiY2RlZjAxIn1dLCJleHAiOjMwNjczNDcyMDI3OTEsImlhdCI6MTQ4OTUxMDQwMn0.7r6yAMFe0ikHFiMKFtchxjFy6pTU1sC41fZDOWqBQXw';
 
 
@@ -68,5 +68,4 @@ describe('Middleware', function() {
 			done();
 		}, wrongSecret);
 	});
-
 });
