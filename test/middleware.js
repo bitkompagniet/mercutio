@@ -54,9 +54,10 @@ describe('Middleware', function() {
 			done();
 		});
 	});
-	it('should not work without authentication', function(done) {
+	it('should continue without errors if no authorization header or cookie is set', function(done) {
 		const req = injectReqObjectIntoMercutio(null, null, function() {
 			req.identity.authenticated.should.be.equal(false);
+			req.identity.should.be.a('object');
 			done();
 		});
 	});
