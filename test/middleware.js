@@ -63,7 +63,7 @@ describe('Middleware', function() {
 
 	it('should not work with wrong secret', function(done) {
 		const wrongSecret = 'Quiet down please';
-		const req = injectReqObjectIntoMercutio(null, null, function() {
+		const req = injectReqObjectIntoMercutio(auth, null, function() {
 			req.identity.authenticated.should.be.equal(false);
 			done();
 		}, wrongSecret);
