@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "jsonwebtoken": "^7.1.9",
+    "jwt-decode": "^2.2.0",
     "lodash": "^4.17.2",
     "rumor": "^1.1.0"
   },
