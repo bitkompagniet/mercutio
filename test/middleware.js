@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-expressions */
+
 const chai = require('chai');
 const lib = require('../express');
 
@@ -6,7 +8,7 @@ const auth = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJhYmNkZWYwMTIzNDU2N
 
 
 function injectReqObjectIntoMercutio(headerAuth, cookieAuth, onComplete, secret = 'ssh') {
-	const mercutio = lib.middleware(secret)[1];
+	const mercutio = lib.identity(secret)[1];
 
 	const req = {
 		header: () => headerAuth,
@@ -20,14 +22,13 @@ function injectReqObjectIntoMercutio(headerAuth, cookieAuth, onComplete, secret 
 	return req;
 }
 
-describe('Middleware', function() {
+describe('.identity', function() {
 	it('should append correct mercutio middleware methods', function(done) {
 		const req = injectReqObjectIntoMercutio(auth, auth, function() {
 			should.exist(req.identity);
 			req.identity.roles.is.should.be.a('function');
 			req.identity.roles.isAny.should.be.a('function');
 			req.identity.roles.in.should.be.a('function');
-			req.identity.require.should.be.a('function');
 			done();
 		});
 	});
@@ -37,6 +38,7 @@ describe('Middleware', function() {
 			req.identity.authenticated.should.be.equal(true);
 			req.identity.roles.is('admin@users/abcdef0123456789abcdef01').should.be.equal(true);
 			req.identity.roles.is('member@users/abcdef0123456789abcdef01').should.be.equal(true);
+			req.identity.roles.is('member@users/someotheruser').should.not.be.ok;
 			done();
 		});
 	});
@@ -68,5 +70,28 @@ describe('Middleware', function() {
 			req.identity.authenticated.should.be.equal(false);
 			done();
 		}, wrongSecret);
+	});
+});
+
+describe('.require', function() {
+	it('should throw an InsufficientPermissionsError when role is wrong', function(done) {
+		const req = injectReqObjectIntoMercutio(auth, null, function() {
+			const requireWare = lib.require('member@users/someotheruser');
+			requireWare(req, null, function(err) {
+				should.exist(err);
+				err.name.should.equal('InsufficientPermissionsError');
+				done();
+			});
+		});
+	});
+
+	it('should continue with no effects when role is right', function(done) {
+		const req = injectReqObjectIntoMercutio(auth, null, function() {
+			const requireWare = lib.require('member@users/abcdef0123456789abcdef01');
+			requireWare(req, null, function(err) {
+				should.not.exist(err);
+				done();
+			});
+		});
 	});
 });

@@ -12,7 +12,6 @@ user.is('admin@users/987/orgs/123'); // true, this is a sub-scope
 user.in('users/987/myscope'); // true, this is a sub-scope
 user.is('admin@users'); // false, this scope is above
 user.is('member@users/987'); // false, member is NOT implied from admin
-
 ```
 
 Mostly, a user will have several roles. You can also feed it arrays, and objects instead of
@@ -22,64 +21,76 @@ strings:
 let user = mercutio('admin@users/987', 'member@123');
 user = mercutio(['admin@users/987', 'member@123']);
 user = mercutio({ role: 'admin', scope: 'users/987' }, { role: 'member', scope: 'my/scope' });
-
 ```
 
 Finally, it can also take and decode a JSON web token. But the decoded payload should have a `roles` property that is an array conforming to the above.
 
-## Middleware
+## Express middleware
 
-Mercutio exposes a middleware function, which will augment the `req.identity` object.
+Mercutio exposes some middleware functions which can be used in an `express` compatible application. Please note that to use this, you need to require `mercutio/express`, which is an extended version with middleware functions. This version cannot be required on the frontend, as it relies on the `jsonwebtoken` package and verifies the token.
+
+### `.identity` middleware
+
+This will augment the `req` object with a `req.identity` object, which contains
 
 ```javascript
 const app = require('express')();
-const mercutio = require('mercutio');
+const mercutio = require('mercutio/express');
 
-app.use(mercutio.middleware());
+app.use(mercutio.identity());
 
 app.use(function(req, res) {
-
+	// true or false, based on whether a token was found and verified.
+	const loggedIn = req.identity.authenticated;
 	// ask if resolved user is admin in my/scope
-	req.identity.is('admin@my/scope');
-
+	const isRole = req.identity.roles.is('admin@my/scope');
 	// ask if user is in my/scope in any role
-	req.identity.in('my/scope');
-
-	// will call the fail handler if false
-	req.identity.demand('admin@my/scope');
-
+	const inScope = req.identity.roles.in('my/scope');
 });
 ```
 
-Per default, mercutio will try to retrieve the roles from a JWT token set on the `Authorization` header of the request. This retrieval can be customized:
+The `req.identity` object will have these properties:
 
 ```javascript
-app.use(mercutio.middleware({ 
-	resolveRoles: req => /* Do something else to retrieve roles */ 
+{
+	// decoded user object
+	user: {},
+	// whether a token was verified successfully
+	authenticated: bool,
+	// a mercutio Roles object, created from roles on user object
+	roles: { Mercutio object }
+}
+```
+
+You can customize how `mercutio` gets the info necessary for constructing the identity. This is the options and their defaults:
+
+```javascript
+app.use(mercutio.identity({
+	// How to resolve the token
+	tokenResolver: req => req.cookies.Authorization || req.get('Authorization') || null,
+
+	// How to resolve the roles from the decoded token
+	roleResolver: user => (user && user.roles) || [],
 }));
 ```
 
-Please note that mercutio does **not** verify the token. This should be done before trusting the token.
+### `.require` middleware
 
-The failure that arises from `demand`ing a role can also be configured:
+This middleware will only work as expected if `.identity` was added earlier in the chain. It can be used to require a specific role as an access requirement to a route.
 
-```javascript
-app.use(mercutio.middleware({ 
-	onDemandFail: (req, res, next) => /* Do something else on failure */ 
-}));
-```
-
-The default behaviour is to set status 401 and return an authorization failure message.
-
-Once the `mercutio.middleware()` has been added to the middleware chain, you can also use the `.demand` middleware to check roles, if you know them outside the request context:
 
 ```javascript
 const app = require('express')();
-const mercutio = require('mercutio');
+const mercutio = require('mercutio/express');
 
-app.use(mercutio.middleware());
+app.use(mercutio.identity());
 
-app.get('/admins', mercutio.demand('admin@scope'), function(req, res) { /* your handler */ });
+// This will pass an `UnauthenticatedError` to next if the user is unauthenticated.
+app.get('/admins', mercutio.require(), function(req, res) {});
+
+// This will pass an `UnauthenticatedError` if no user, or an `InsufficientPermissionsError` if wrong role.
+app.get('/admins', mercutio.require('admin@scope'), function(req, res) {});
+
+// This will pass an `UnauthenticatedError` if no user, or an `InsufficientPermissionsError` if wrong role.
+app.get('/secret-route', mercutio.require(req => `admin@users/${req.params.id}`), function(req, res) {});
 ```
-
-The `onDemandFail` will be called if this check fails.

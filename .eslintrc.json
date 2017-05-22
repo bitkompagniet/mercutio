@@ -10,6 +10,7 @@
     "no-tabs": "off",
     "prefer-arrow-callback": "off",
     "space-before-function-paren": "off",
-    "import/no-extraneous-dependencies": "off"
+    "import/no-extraneous-dependencies": "off",
+    "quotes": "off"
   }
 }

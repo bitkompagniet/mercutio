@@ -2,18 +2,13 @@ const mercutio = require('./lib');
 const jsonwebtoken = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const rumor = require('rumor')('mercutio');
+const errors = require('./lib/errors');
+const _ = require('lodash');
 
-function failWithSimpleMessage(req, res) {
-	return res.status(401).send('Insufficient permissions.');
-}
-
-function defaultRequestUserResolver(req) {
-	return req.cookies.Authorization || req.get('Authorization') || null;
-}
-
-mercutio.middleware = function(secret, { resolveRoles = defaultRequestUserResolver, onDemandFail = failWithSimpleMessage } = {}, { header = 'Authorization' } = {}) {
-	rumor(`Adding authorization middleware from mercutio (respondo auth depricated), checking the header ${header} with secret ${secret}`);
-
+mercutio.identity = function(secret, {
+	tokenResolver = req => req.cookies.Authorization || req.get('Authorization') || null,
+	roleResolver = user => (user && user.roles) || [],
+} = {}) {
 	return [
 		cookieParser(),
 
@@ -22,7 +17,7 @@ mercutio.middleware = function(secret, { resolveRoles = defaultRequestUserResolv
 			req.identity.user = null;
 			req.identity.authenticated = false;
 
-			const token = resolveRoles(req);
+			const token = tokenResolver(req);
 
 			jsonwebtoken.verify(token, secret, function(err, decoded) {
 				if (err) {
@@ -32,10 +27,7 @@ mercutio.middleware = function(secret, { resolveRoles = defaultRequestUserResolv
 
 				req.identity.user = decoded;
 				req.identity.authenticated = true;
-				req.identity.roles = mercutio(req.identity.user.roles);
-				req.identity.require = (role) => {
-					if (!req.identity.roles.isAny(role)) onDemandFail(req, res, next);
-				};
+				req.identity.roles = mercutio(roleResolver(req.identity.user));
 
 				rumor.debug('Identity added to req:');
 				rumor.info({ identity: req.identity });
@@ -43,6 +35,23 @@ mercutio.middleware = function(secret, { resolveRoles = defaultRequestUserResolv
 			});
 		},
 	];
+};
+
+mercutio.require = function(roleResolver) {
+	return function(req, res, next) {
+		if (!req.identity.authenticated) {
+			return next(new errors.UnauthenticatedError());
+		}
+
+		const role = _.isFunction(roleResolver) ? roleResolver(req) : roleResolver;
+
+		if (role && !req.identity.roles.is(role)) {
+			rumor.debug(`Permission denied for ${req.identity.user.email}. Needed ${role}.`);
+			return next(new errors.InsufficientPermissionsError(role));
+		}
+
+		return next();
+	};
 };
 
 module.exports = mercutio;
