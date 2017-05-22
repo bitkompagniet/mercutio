@@ -57,7 +57,7 @@ The `req.identity` object will have these properties:
 	user: {},
 	// whether a token was verified successfully
 	authenticated: bool,
-	// a mercutio Roles object, created from roles on user object
+	// an initialized mercutio Roles object, created from roles on user object
 	roles: { Mercutio object }
 }
 ```
