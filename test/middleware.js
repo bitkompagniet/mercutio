@@ -1,5 +1,5 @@
 const chai = require('chai');
-const lib = require('../lib');
+const lib = require('../express');
 
 const should = chai.should();
 const auth = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEiLCJlbWFpbCI6InRlc3RAbXVncy5pbmZvIiwiZmlyc3RuYW1lIjoiVGVzdCIsImxhc3RuYW1lIjoiVGVzdHNlbiIsInJvbGVzIjpbeyJyb2xlIjoiYWRtaW4iLCJzY29wZSI6InVzZXJzL2FiY2RlZjAxMjM0NTY3ODlhYmNkZWYwMSJ9LHsicm9sZSI6Im1lbWJlciIsInNjb3BlIjoidXNlcnMvYWJjZGVmMDEyMzQ1Njc4OWFiY2RlZjAxIn1dLCJleHAiOjMwNjczNDcyMDI3OTEsImlhdCI6MTQ4OTUxMDQwMn0.7r6yAMFe0ikHFiMKFtchxjFy6pTU1sC41fZDOWqBQXw';
@@ -11,7 +11,7 @@ function injectReqObjectIntoMercutio(headerAuth, cookieAuth, onComplete, secret 
 	const req = {
 		header: () => headerAuth,
 		cookies: {
-			Authentication: cookieAuth,
+			Authorization: cookieAuth,
 		},
 		get: () => headerAuth,
 	};
@@ -24,10 +24,10 @@ describe('Middleware', function() {
 	it('should append correct mercutio middleware methods', function(done) {
 		const req = injectReqObjectIntoMercutio(auth, auth, function() {
 			should.exist(req.identity);
-			req.identity.is.should.be.a('function');
-			req.identity.isAny.should.be.a('function');
-			req.identity.in.should.be.a('function');
-			req.identity.demand.should.be.a('function');
+			req.identity.roles.is.should.be.a('function');
+			req.identity.roles.isAny.should.be.a('function');
+			req.identity.roles.in.should.be.a('function');
+			req.identity.require.should.be.a('function');
 			done();
 		});
 	});
@@ -35,8 +35,8 @@ describe('Middleware', function() {
 	it('should allow access when given the correct scopes for test@mugs.info', function(done) {
 		const req = injectReqObjectIntoMercutio(auth, auth, function() {
 			req.identity.authenticated.should.be.equal(true);
-			req.identity.is('admin@users/abcdef0123456789abcdef01').should.be.equal(true);
-			req.identity.is('member@users/abcdef0123456789abcdef01').should.be.equal(true);
+			req.identity.roles.is('admin@users/abcdef0123456789abcdef01').should.be.equal(true);
+			req.identity.roles.is('member@users/abcdef0123456789abcdef01').should.be.equal(true);
 			done();
 		});
 	});
