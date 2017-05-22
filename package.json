@@ -15,6 +15,7 @@
   "author": "Kristian Videmark Parkov",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.17.2",
     "rumor": "^1.1.0"
