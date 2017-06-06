@@ -31,13 +31,13 @@ Mercutio exposes some middleware functions which can be used in an `express` com
 
 ### `.identity` middleware
 
-This will augment the `req` object with a `req.identity` object, which contains
+This will augment the `req` object with a `req.identity` object, which contains user information. The middleware should be configured with a secret key for verification and signing.
 
 ```javascript
 const app = require('express')();
 const mercutio = require('mercutio/express');
 
-app.use(mercutio.identity());
+app.use(mercutio.identity('ssh'));
 
 app.use(function(req, res) {
 	// true or false, based on whether a token was found and verified.
@@ -65,7 +65,7 @@ The `req.identity` object will have these properties:
 You can customize how `mercutio` gets the info necessary for constructing the identity. This is the options and their defaults:
 
 ```javascript
-app.use(mercutio.identity({
+app.use(mercutio.identity('ssh', {
 	// How to resolve the token
 	tokenResolver: req => req.cookies.Authorization || req.get('Authorization') || null,
 
@@ -83,7 +83,7 @@ This middleware will only work as expected if `.identity` was added earlier in t
 const app = require('express')();
 const mercutio = require('mercutio/express');
 
-app.use(mercutio.identity());
+app.use(mercutio.identity('ssh'));
 
 // This will pass an `UnauthenticatedError` to next if the user is unauthenticated.
 app.get('/admins', mercutio.require(), function(req, res) {});
